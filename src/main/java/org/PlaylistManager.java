@@ -9,6 +9,7 @@ public class PlaylistManager {
 
     public PlaylistManager() {
         songs = FXCollections.observableArrayList();
+        loadDefaultSongs();
 
     }
 
