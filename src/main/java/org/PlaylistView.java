@@ -12,6 +12,7 @@ import java.io.File;
 
 public class PlaylistView {
 
+    private final MediaManager mediaManager = new MediaManager();
     private final PlaylistManager playlistManager = new PlaylistManager();
 
     public BorderPane createPlaylist(Runnable backAction) {
@@ -57,6 +58,7 @@ public class PlaylistView {
             Song currentSong = playlist.getSelectionModel().getSelectedItem();
 
             if (currentSong != null){
+                mediaManager.playSong(currentSong);
                 nowPlayingLabel.setText("Now Playing: " + currentSong.getTitle());
             } else {
                 nowPlayingLabel.setText("No songs in playlist");
@@ -65,6 +67,7 @@ public class PlaylistView {
         });
 
         pauseButton.setOnAction(e -> {
+            mediaManager.pauseSong();
             nowPlayingLabel.setText("Paused");
         });
 
