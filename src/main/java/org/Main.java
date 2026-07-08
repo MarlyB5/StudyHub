@@ -10,7 +10,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) {
-        Scene scene = new Scene(new Pane(), 500, 400);
+        Scene scene = new Scene(new Pane(), 600, 500);
 
         MenuView menuView = new MenuView();
         PlaylistView playlistView = new PlaylistView();

@@ -7,7 +7,7 @@ public class MediaManager {
 
     private MediaPlayer mediaPlayer;
 
-    public void playSong(Song song){
+    public void playSong(Song song, Runnable whenFinished){
 
         if (song == null){
             return;
@@ -24,17 +24,37 @@ public class MediaManager {
         if (fileLocation.startsWith("file:")){
             media = new Media(fileLocation);
         }else {
-            String path = getClass().getResource(fileLocation).toExternalForm();
-            media = new Media(path);
+            String resourcePath = getClass().getResource(fileLocation).toExternalForm();
+            media = new Media(resourcePath);
         }
 
         mediaPlayer = new MediaPlayer(media);
+
+
+        mediaPlayer.setOnEndOfMedia(()-> {
+            if (whenFinished != null){
+                whenFinished.run();
+            }
+                });
+
         mediaPlayer.play();
     }
 
     public void pauseSong(){
         if (mediaPlayer != null){
-            mediaPlayer.stop();
+            mediaPlayer.pause();
+        }
+    }
+
+    public void resumeSong(){
+        if (mediaPlayer != null){
+            mediaPlayer.play();
+        }
+    }
+
+    public void setVolume(double volume) {
+        if (mediaPlayer != null){
+            mediaPlayer.setVolume(volume);
         }
     }
 }
