@@ -7,13 +7,15 @@ import javafx.util.Duration;
 // timer logivc
 public class PomodoroTimer {
 
-    private static final int SESSION_LENGTH = 25 * 60; // ins seconds
-    private static final int BREAK_LENGTH = 5 * 60;
+    private static final int SESSION_LENGTH = 10; // ins seconds
+    private static final int BREAK_LENGTH = 5;
 
 
     private int secondsRemaining;
 
     private boolean workSession = true;
+
+    private int completedSessions = 0;
 
     private final Timeline timeline;
 
@@ -50,6 +52,8 @@ public class PomodoroTimer {
     private void switchSession() {
 
         if (workSession) {
+            completedSessions++;
+
             workSession = false;
             secondsRemaining = BREAK_LENGTH;
         }
@@ -66,7 +70,8 @@ public class PomodoroTimer {
 
             timeListener.onTimerUpdate(
                     secondsRemaining,
-                    workSession
+                    workSession,
+                    completedSessions
             );
         }
     }

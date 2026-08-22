@@ -5,6 +5,8 @@ public interface TimeListener {
 
     void onTimerUpdate(
             int secondsRemaining,
-            boolean workSession
+            boolean workSession,
+            int completedSessions
+
     );
 }
