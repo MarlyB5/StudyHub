@@ -1,10 +1,12 @@
 
-package org;
+package org.app;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import org.playlist.MenuView;
+import org.playlist.PlaylistView;
 
 public class Main extends Application {
 

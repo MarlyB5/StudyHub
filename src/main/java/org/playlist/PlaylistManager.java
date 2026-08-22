@@ -1,4 +1,4 @@
-package org;
+package org.playlist;
 
 import javafx.collections.ObservableList;
 import javafx.collections.FXCollections;

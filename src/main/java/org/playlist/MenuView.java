@@ -1,4 +1,4 @@
-package org;
+package org.playlist;
 
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;

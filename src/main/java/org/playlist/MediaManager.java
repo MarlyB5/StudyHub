@@ -1,6 +1,5 @@
-package org;
+package org.playlist;
 
-import javafx.beans.Observable;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaException;
 import javafx.scene.media.MediaPlayer;
@@ -35,9 +34,6 @@ public class MediaManager {
 
         try {
             String mediaSource;
-            /* Uploaded songs created by FileChooser already use a file URI,
-              such as file:/C:/Users/Name/Music/song.mp3.
-             */
             if (fileLocation.startsWith("file:")) {
                 mediaSource = fileLocation;
             } else {
@@ -173,5 +169,6 @@ public class MediaManager {
                 .getTotalDuration()
                 .toSeconds();
     }
+
 }
 

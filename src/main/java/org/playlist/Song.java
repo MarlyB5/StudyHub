@@ -1,4 +1,4 @@
-package org;
+package org.playlist;
 //songs class for storing songs
 public class Song {
 

@@ -1,4 +1,4 @@
-package org;
+package org.playlist;
 
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
@@ -11,6 +11,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 
 import java.io.File;
+import java.util.Random;
 
 public class PlaylistView {
 
@@ -19,13 +20,13 @@ public class PlaylistView {
 
     private boolean isPaused = false;
     private int currentSongIndex = 0;
+    private boolean shuffleEnabled = false;
+    // 0 = OFF, 1 = ALL, 2 = ONE
+    private int repeatMode = 0;
 
     public BorderPane createPlaylist(Runnable backAction) {
 
-        // ------------------------------------------------------------
         // LABELS
-        // ------------------------------------------------------------
-
         Label titleLabel = new Label("My Playlist");
 
         Label nowPlayingLabel = new Label("Now Playing: ");
@@ -34,11 +35,7 @@ public class PlaylistView {
 
         Label volumeLabel = new Label("Volume");
 
-
-        // ------------------------------------------------------------
         // PLAYLIST
-        // ------------------------------------------------------------
-
         ListView<Song> playlist = new ListView<>();
 
         playlist.setItems(
@@ -112,6 +109,8 @@ public class PlaylistView {
         Button removeButton = new Button("Remove");
 
         Button addSongButton = new Button("Add Song");
+
+        Button repeatButton = new Button("Repeat: OFF");
 
 
         // DOUBLE CLICK TO PLAY
@@ -345,28 +344,50 @@ public class PlaylistView {
         });
 
 
-        // ------------------------------------------------------------
         // SHUFFLE BUTTON
-        // ------------------------------------------------------------
 
-        /*
-         * The button is restored,
-         * but we are NOT adding shuffle logic yet.
-         *
-         * We will implement that after progress/seeking works.
-         */
         shuffleButton.setOnAction(event -> {
 
-            nowPlayingLabel.setText(
-                    "Shuffle not implemented yet"
-            );
+         shuffleEnabled = !shuffleEnabled;
+
+         if (shuffleEnabled){
+             shuffleButton.setText("Shuffle Off");
+         }
+         else{
+             shuffleButton.setText("Shuffle On");
+         }
         });
 
+        // REPEAT BUTTON
+        repeatButton.setOnAction(event -> {
 
-        // ------------------------------------------------------------
+            repeatMode++;
+
+            if (repeatMode > 2) {
+                repeatMode = 0;
+            }
+
+            if (repeatMode == 0) {
+
+                repeatButton.setText(
+                        "Repeat: OFF"
+                );
+
+            } else if (repeatMode == 1) {
+
+                repeatButton.setText(
+                        "Repeat: ALL"
+                );
+
+            } else {
+
+                repeatButton.setText(
+                        "Repeat: ONE"
+                );
+            }
+        });
+
         // LAYOUT
-        // ------------------------------------------------------------
-
         HBox controls = new HBox(
                 10,
                 previousButton,
@@ -374,6 +395,7 @@ public class PlaylistView {
                 pauseButton,
                 nextButton,
                 shuffleButton,
+                repeatButton,
                 addSongButton,
                 removeButton,
                 backButton
@@ -443,14 +465,8 @@ public class PlaylistView {
     }
 
 
-    // ============================================================
-    // PLAY SONG
-    // ============================================================
 
-    /*
-     * This helper method stops us from repeating the same
-     * MediaManager.playSong() code everywhere.
-     */
+    // PLAY SONG
     private void playSong(
             Song song,
             ListView<Song> playlist,
@@ -464,7 +480,8 @@ public class PlaylistView {
                 song,
 
                 // Runs when the song finishes
-                () -> playNextSong(
+                () -> handleSongFinished(
+                        song,
                         playlist,
                         nowPlayingLabel,
                         progressSlider,
@@ -526,8 +543,34 @@ public class PlaylistView {
         }
 
 
-        currentSongIndex++;
+        if (shuffleEnabled) {
 
+            Random random = new Random();
+
+            int newIndex;
+
+            do {
+                newIndex = random.nextInt(
+                        playlistManager.getSongs().size()
+                );
+            } while (
+                    newIndex == currentSongIndex
+                            && playlistManager.getSongs().size() > 1
+            );
+
+            currentSongIndex = newIndex;
+
+        } else {
+
+            currentSongIndex++;
+
+            if (
+                    currentSongIndex
+                            >= playlistManager.getSongs().size()
+            ) {
+                currentSongIndex = 0;
+            }
+        }
 
         /*
          * If we go past the final song,
@@ -725,5 +768,63 @@ public class PlaylistView {
         return playlistManager
                 .getSongs()
                 .get(currentSongIndex);
+    }
+
+    private void handleSongFinished(
+            Song currentSong,
+            ListView<Song> playlist,
+            Label nowPlayingLabel,
+            Slider progressSlider,
+            Label timeLabel
+    ) {
+
+        // Repeat ONE
+        if (repeatMode == 2) {
+
+            playSong(
+                    currentSong,
+                    playlist,
+                    nowPlayingLabel,
+                    progressSlider,
+                    timeLabel
+            );
+
+            return;
+        }
+
+
+        // Repeat OFF
+        if (repeatMode == 0) {
+
+            /*
+             * If this is the last song,
+             * stop instead of wrapping around.
+             */
+            if (
+                    !shuffleEnabled
+                            && currentSongIndex
+                            == playlistManager.getSongs().size() - 1
+            ) {
+
+                nowPlayingLabel.setText(
+                        "Playlist finished"
+                );
+
+                progressSlider.setValue(100);
+
+                return;
+            }
+        }
+
+
+        /*
+         * Repeat ALL or normal continuation.
+         */
+        playNextSong(
+                playlist,
+                nowPlayingLabel,
+                progressSlider,
+                timeLabel
+        );
     }
 }

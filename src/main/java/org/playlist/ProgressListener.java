@@ -1,4 +1,4 @@
-package org;
+package org.playlist;
 
 public interface ProgressListener {
 
