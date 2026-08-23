@@ -17,6 +17,7 @@ public class TimerViewer {
         Label sessionLabel = new Label("Work Session");
         Label timerLabel = new Label("25:00");
         Label sessionsLabel = new Label("Sessions completed: 0");
+        Label studyLabel = new Label("Total Study Time: 0:00");
 
         Button startButton = new Button("Start");
         Button pauseButton = new Button("Pause");
@@ -32,7 +33,7 @@ public class TimerViewer {
         Button changeButton = new Button("Change Durations");
 
         PomodoroTimer timer = new PomodoroTimer(
-                (secondsRemaining, workSession, completedSessions) -> {
+                (secondsRemaining, workSession, completedSessions, totalStudySeconds) -> {
                     timerLabel.setText(formatTime(secondsRemaining));
                     if (workSession) {
                         sessionLabel.setText("Work Session");
@@ -40,6 +41,7 @@ public class TimerViewer {
                         sessionLabel.setText("Break Session");
                     }
                     sessionsLabel.setText("Sessions completed: " + completedSessions);
+                    studyLabel.setText("Total Study Time: " + formatTime(totalStudySeconds));
                 }
         );
 
@@ -113,6 +115,7 @@ public class TimerViewer {
                 sessionLabel,
                 timerLabel,
                 sessionsLabel,
+                studyLabel,
                 changeButton,
                 workLabel,
                 workMinutesField,
@@ -135,5 +138,25 @@ public class TimerViewer {
         int minutes = totalSeconds / 60;
         int seconds = totalSeconds % 60;
         return String.format("%02d:%02d", minutes, seconds);
+    }
+    private String formatStudyTime(
+            int totalSeconds
+    ) {
+
+        int hours =
+                totalSeconds / 3600;
+
+        int minutes =
+                (totalSeconds % 3600) / 60;
+
+        int seconds =
+                totalSeconds % 60;
+
+        return String.format(
+                "%02d:%02d:%02d",
+                hours,
+                minutes,
+                seconds
+        );
     }
 }

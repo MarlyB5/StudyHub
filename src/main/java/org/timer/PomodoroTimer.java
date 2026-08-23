@@ -13,6 +13,8 @@ public class PomodoroTimer {
     private int secondsRemaining;
     private boolean workSession = true;
     private int completedSessions = 0;
+    private int totalStudySeconds;
+
 
     private final Timeline timeline;
     private final TimeListener timeListener;
@@ -55,6 +57,10 @@ public class PomodoroTimer {
     private void tick() {
         secondsRemaining--;
 
+        if (workSession) {
+            totalStudySeconds ++;
+        }
+
         if (secondsRemaining <= 0) {
             switchSession();
         }
@@ -78,7 +84,8 @@ public class PomodoroTimer {
             timeListener.onTimerUpdate(
                     secondsRemaining,
                     workSession,
-                    completedSessions
+                    completedSessions,
+                    totalStudySeconds
             );
         }
     }
