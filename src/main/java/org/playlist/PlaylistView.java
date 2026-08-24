@@ -12,11 +12,12 @@ import javafx.stage.FileChooser;
 
 import java.io.File;
 import java.util.Random;
+import org.persistence.AppData;
 
 public class PlaylistView {
 
     private final MediaManager mediaManager = new MediaManager();
-    private final PlaylistManager playlistManager = new PlaylistManager();
+    private PlaylistManager playlistManager;
 
     private boolean isPaused = false;
     private int currentSongIndex = 0;
@@ -24,7 +25,7 @@ public class PlaylistView {
     // 0 = OFF, 1 = ALL, 2 = ONE
     private int repeatMode = 0;
 
-    public BorderPane createPlaylist(Runnable backAction) {
+    public BorderPane createPlaylist(AppData appData, Runnable backAction) {
 
         // LABELS
         Label titleLabel = new Label("My Playlist");
@@ -37,6 +38,11 @@ public class PlaylistView {
 
         // PLAYLIST
         ListView<Song> playlist = new ListView<>();
+
+        // Initialize manager with shared AppData for persistence
+        if (playlistManager == null) {
+            playlistManager = new PlaylistManager(appData);
+        }
 
         playlist.setItems(
                 playlistManager.getSongs()

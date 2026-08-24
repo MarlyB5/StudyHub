@@ -3,6 +3,7 @@ package org.timer;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.util.Duration;
+import org.persistence.AppData;
 
 // timer logic
 public class PomodoroTimer {
@@ -18,31 +19,57 @@ public class PomodoroTimer {
 
     private final Timeline timeline;
     private final TimeListener timeListener;
+    private final AppData appData;
+
 
     // setters and getters (accept minutes, store seconds)
-    public void setSESSION_LENGTH(int minutes) {
+    public void setWorkDurationMinutes(int minutes) {
         if (minutes >= 1) {
             SESSION_LENGTH = minutes * 60;
+            if (workSession) {
+                // If currently on work session, reset remaining to new length to reflect change on reset
+                secondsRemaining = SESSION_LENGTH;
+            }
+            // persist
+            if (appData != null) appData.setWorkDurationMinutes(minutes);
         }
     }
 
-    public void setBREAK_LENGTH(int minutes) {
+    public void setBreakDurationMinutes(int minutes) {
         if (minutes >= 1) {
             BREAK_LENGTH = minutes * 60;
+            if (!workSession) {
+                secondsRemaining = BREAK_LENGTH;
+            }
+            if (appData != null) appData.setBreakDurationMinutes(minutes);
         }
     }
 
-    public int getSessionLengthMinutes() {
+    public int getWorkDurationMinutes() {
         return SESSION_LENGTH / 60;
     }
 
-    public int getBreakLengthMinutes() {
+    public int getBreakDurationMinutes() {
         return BREAK_LENGTH / 60;
     }
 
-    // constructors
-    public PomodoroTimer(TimeListener timeListener) {
+    // Backward-compatible getters
+    public int getSessionLengthMinutes() { return getWorkDurationMinutes(); }
+    public int getBreakLengthMinutes() { return getBreakDurationMinutes(); }
+
+    // constructor
+    public PomodoroTimer(TimeListener timeListener, AppData appData) {
         this.timeListener = timeListener;
+        this.appData = appData;
+
+        // initialize from AppData if available
+        if (appData != null) {
+            SESSION_LENGTH = Math.max(1, appData.getWorkDurationMinutes()) * 60;
+            BREAK_LENGTH = Math.max(1, appData.getBreakDurationMinutes()) * 60;
+            completedSessions = Math.max(0, appData.getCompletedWorkSessions());
+            totalStudySeconds = Math.max(0, appData.getTotalStudySeconds());
+        }
+
         secondsRemaining = SESSION_LENGTH;
 
         timeline = new Timeline(
@@ -52,13 +79,17 @@ public class PomodoroTimer {
                 )
         );
         timeline.setCycleCount(Timeline.INDEFINITE);
+
+        // notify initial state to listener
+        notifyListener();
     }
 
     private void tick() {
         secondsRemaining--;
 
         if (workSession) {
-            totalStudySeconds ++;
+            totalStudySeconds++;
+            if (appData != null) appData.setTotalStudySeconds(totalStudySeconds);
         }
 
         if (secondsRemaining <= 0) {
@@ -71,6 +102,7 @@ public class PomodoroTimer {
     private void switchSession() {
         if (workSession) {
             completedSessions++;
+            if (appData != null) appData.setCompletedWorkSessions(completedSessions);
             workSession = false;
             secondsRemaining = BREAK_LENGTH;
         } else {

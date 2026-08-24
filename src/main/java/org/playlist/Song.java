@@ -6,6 +6,10 @@ public class Song {
     private String artist;
     private String fileLocation;
 
+    public Song() {
+
+    }
+
     public Song(String title, String artist, String fileLocation) {
         this.title = title;
         this.artist = artist;

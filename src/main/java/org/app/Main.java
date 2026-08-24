@@ -7,11 +7,19 @@ import javafx.stage.Stage;
 
 import org.playlist.PlaylistView;
 import org.timer.TimerViewer;
+import org.persistence.AppData;
+import org.persistence.DataManager;
 
 public class Main extends Application {
 
     @Override
     public void start(Stage stage) {
+
+        DataManager dataManager =
+                new DataManager();
+
+        AppData appData =
+                dataManager.loadData();
 
         Scene scene = new Scene(
                 new Pane(),
@@ -41,12 +49,14 @@ public class Main extends Application {
         );
 
         playlistRoot[0] = playlistView.createPlaylist(
+                appData,
                 () -> scene.setRoot(
                         menuRoot[0]
                 )
         );
 
         timerRoot[0] = timerView.createTimer(
+                appData,
                 () -> scene.setRoot(
                         menuRoot[0]
                 )
@@ -63,6 +73,13 @@ public class Main extends Application {
         stage.setScene(
                 scene
         );
+
+        stage.setOnCloseRequest(event -> {
+
+            dataManager.saveData(
+                    appData
+            );
+        });
 
         stage.show();
     }

@@ -10,14 +10,15 @@ import javafx.scene.layout.VBox;
 public class TimerViewer {
 
     public VBox createTimer(
+            org.persistence.AppData appData,
             Runnable backAction
     ) {
 
         Label titleLabel = new Label("Pomodoro Timer");
         Label sessionLabel = new Label("Work Session");
-        Label timerLabel = new Label("25:00");
-        Label sessionsLabel = new Label("Sessions completed: 0");
-        Label studyLabel = new Label("Total Study Time: 0:00");
+        Label timerLabel = new Label(formatTime(appData.getWorkDurationMinutes() * 60));
+        Label sessionsLabel = new Label("Sessions completed: " + appData.getCompletedWorkSessions());
+        Label studyLabel = new Label("Total Study Time: " + formatTime(appData.getTotalStudySeconds()));
 
         Button startButton = new Button("Start");
         Button pauseButton = new Button("Pause");
@@ -42,7 +43,8 @@ public class TimerViewer {
                     }
                     sessionsLabel.setText("Sessions completed: " + completedSessions);
                     studyLabel.setText("Total Study Time: " + formatTime(totalStudySeconds));
-                }
+                },
+                appData
         );
 
         // Hide inputs and apply by default (and do not take layout space)
@@ -87,8 +89,8 @@ public class TimerViewer {
                 int workMinutes = Integer.parseInt(workMinutesField.getText());
                 int breakMinutes = Integer.parseInt(breakMinutesField.getText());
 
-                timer.setSESSION_LENGTH(workMinutes);
-                timer.setBREAK_LENGTH(breakMinutes);
+                timer.setWorkDurationMinutes(workMinutes);
+                timer.setBreakDurationMinutes(breakMinutes);
                 timer.reset();
 
                 // Hide inputs and re-enable change button
