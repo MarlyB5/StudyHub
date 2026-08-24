@@ -1,0 +1,14 @@
+{
+  "workDurationMinutes": 1,
+  "breakDurationMinutes": 1,
+  "completedWorkSessions": 16,
+  "totalStudySeconds": 1002,
+  "playlistSongs": [
+    {
+      "title": "Sean Ferree - The Oort Cloud.mp3",
+      "artist": "Unknown Artist",
+      "fileLocation": "file:/C:/Users/marly/Downloads/Sean%20Ferree%20-%20The%20Oort%20Cloud.mp3"
+    }
+  ],
+  "playlistInitialized": true
+}
