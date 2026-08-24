@@ -73,6 +73,9 @@ public class ModuleView {
                         "Include contact hours in target"
                 );
 
+        Button searchUcdButton =
+                new Button("Search UCD");
+
         Button addButton =
                 new Button("Add Module");
 
@@ -97,6 +100,32 @@ public class ModuleView {
         );
 
         moduleList.setPrefHeight(200);
+
+        searchUcdButton.setOnAction(event -> {
+
+            String moduleCode =
+                    moduleCodeField
+                            .getText()
+                            .trim();
+
+            if (moduleCode.isBlank()) {
+
+                statusLabel.setText(
+                        "Please enter a module code"
+                );
+
+                return;
+            }
+
+
+            UCDModuleService service =
+                    new UCDModuleService();
+
+
+            service.findModule(
+                    moduleCode
+            );
+        });
 
         addButton.setOnAction(event -> {
 
@@ -244,10 +273,7 @@ public class ModuleView {
             );
         });
 
-
-        // ---------------------------------------------------------
         // BACK BUTTON
-        // ---------------------------------------------------------
 
         backButton.setOnAction(event -> {
 
@@ -258,10 +284,7 @@ public class ModuleView {
         });
 
 
-        // ---------------------------------------------------------
         // LAYOUT
-        // ---------------------------------------------------------
-
         VBox layout =
                 new VBox(
                         10,
@@ -270,6 +293,7 @@ public class ModuleView {
 
                         moduleCodeLabel,
                         moduleCodeField,
+                        searchUcdButton,
 
                         moduleNameLabel,
                         moduleNameField,
