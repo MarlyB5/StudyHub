@@ -5,6 +5,7 @@ import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
+import org.modules.ModuleView;
 import org.playlist.PlaylistView;
 import org.timer.TimerViewer;
 import org.persistence.AppData;
@@ -12,14 +13,19 @@ import org.persistence.DataManager;
 
 public class Main extends Application {
 
+    private DataManager dataManager;
+    private AppData appData;
+
+
     @Override
     public void start(Stage stage) {
 
-        DataManager dataManager =
+        dataManager =
                 new DataManager();
 
-        AppData appData =
+        appData =
                 dataManager.loadData();
+
 
         Scene scene = new Scene(
                 new Pane(),
@@ -27,44 +33,83 @@ public class Main extends Application {
                 500
         );
 
-        MenuView menuView = new MenuView();
-        PlaylistView playlistView = new PlaylistView();
-        TimerViewer timerView = new TimerViewer();
 
-        Pane[] menuRoot = new Pane[1];
-        Pane[] playlistRoot = new Pane[1];
-        Pane[] timerRoot = new Pane[1];
+        MenuView menuView =
+                new MenuView();
 
-        menuRoot[0] = menuView.createMenu(
+        PlaylistView playlistView =
+                new PlaylistView();
 
-                () -> scene.setRoot(
-                        playlistRoot[0]
-                ),
+        TimerViewer timerView =
+                new TimerViewer();
 
-                () -> scene.setRoot(
-                        timerRoot[0]
-                ),
+        ModuleView moduleView =
+                new ModuleView();
 
-                () -> stage.close()
-        );
 
-        playlistRoot[0] = playlistView.createPlaylist(
-                appData,
-                () -> scene.setRoot(
-                        menuRoot[0]
-                )
-        );
+        Pane[] menuRoot =
+                new Pane[1];
 
-        timerRoot[0] = timerView.createTimer(
-                appData,
-                () -> scene.setRoot(
-                        menuRoot[0]
-                )
-        );
+        Pane[] playlistRoot =
+                new Pane[1];
+
+        Pane[] timerRoot =
+                new Pane[1];
+
+        Pane[] moduleRoot =
+                new Pane[1];
+
+
+        menuRoot[0] =
+                menuView.createMenu(
+
+                        () -> scene.setRoot(
+                                playlistRoot[0]
+                        ),
+
+                        () -> scene.setRoot(
+                                timerRoot[0]
+                        ),
+
+                        () -> scene.setRoot(
+                                moduleRoot[0]
+                        ),
+
+                        () -> stage.close()
+                );
+
+
+        playlistRoot[0] =
+                playlistView.createPlaylist(
+                        appData,
+                        () -> scene.setRoot(
+                                menuRoot[0]
+                        )
+                );
+
+
+        timerRoot[0] =
+                timerView.createTimer(
+                        appData,
+                        () -> scene.setRoot(
+                                menuRoot[0]
+                        )
+                );
+
+
+        moduleRoot[0] =
+                moduleView.createModuleView(
+                        appData,
+                        () -> scene.setRoot(
+                                menuRoot[0]
+                        )
+                );
+
 
         scene.setRoot(
                 menuRoot[0]
         );
+
 
         stage.setTitle(
                 "Study Hub"
@@ -74,17 +119,31 @@ public class Main extends Application {
                 scene
         );
 
-        stage.setOnCloseRequest(event -> {
+        stage.show();
+    }
+
+
+    @Override
+    public void stop() {
+
+        if (
+                dataManager != null
+                        && appData != null
+        ) {
 
             dataManager.saveData(
                     appData
             );
-        });
 
-        stage.show();
+            System.out.println(
+                    "Application data saved on shutdown"
+            );
+        }
     }
 
+
     public static void main(String[] args) {
+
         launch();
     }
 }

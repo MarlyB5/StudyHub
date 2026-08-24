@@ -1,6 +1,7 @@
 package org.persistence;
 
 import org.playlist.Song;
+import org.modules.StudyModule;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +17,8 @@ public class AppData {
     private List<Song> playlistSongs = new ArrayList<>();
     // Distinguish first-run defaults from deliberately empty saved playlist
     private boolean playlistInitialized = false;
+
+    private List<StudyModule> studyModules = new ArrayList<>();
 
 
     public int getWorkDurationMinutes() {
@@ -67,5 +70,13 @@ public class AppData {
 
     public void setPlaylistInitialized(boolean playlistInitialized) {
         this.playlistInitialized = playlistInitialized;
+    }
+
+    public List<StudyModule> getStudyModules() {
+        return studyModules;
+    }
+
+    public void setStudyModules(List<StudyModule> studyModules) {
+        this.studyModules = studyModules;
     }
 }

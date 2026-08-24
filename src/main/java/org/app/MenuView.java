@@ -10,6 +10,7 @@ public class MenuView {
     public VBox createMenu(
             Runnable openPlaylistAction,
             Runnable openTimerAction,
+            Runnable openModulesAction,
             Runnable exitAction
     ) {
 
@@ -21,6 +22,9 @@ public class MenuView {
         Button openTimerButton =
                 new Button("Pomodoro Timer");
 
+        Button openModulesButton =
+                new Button("Study Modules");
+
         Button exitButton =
                 new Button("Exit");
 
@@ -31,6 +35,10 @@ public class MenuView {
 
         openTimerButton.setOnAction(
                 e -> openTimerAction.run()
+        );
+
+        openModulesButton.setOnAction(
+                e -> openModulesAction.run()
         );
 
         exitButton.setOnAction(
@@ -49,6 +57,7 @@ public class MenuView {
                 titleLabel,
                 openPlaylistButton,
                 openTimerButton,
+                openModulesButton,
                 exitButton
         );
 
