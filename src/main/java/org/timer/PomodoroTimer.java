@@ -19,6 +19,7 @@ public class PomodoroTimer {
 
     private final Timeline timeline;
     private final TimeListener timeListener;
+    private final StudyTimeListener studyTimeListener;
     private final AppData appData;
 
 
@@ -58,8 +59,9 @@ public class PomodoroTimer {
     public int getBreakLengthMinutes() { return getBreakDurationMinutes(); }
 
     // constructor
-    public PomodoroTimer(TimeListener timeListener, AppData appData) {
+    public PomodoroTimer(TimeListener timeListener, StudyTimeListener studyTimeListener, AppData appData) {
         this.timeListener = timeListener;
+        this.studyTimeListener = studyTimeListener;
         this.appData = appData;
 
         // initialize from AppData if available
@@ -90,6 +92,9 @@ public class PomodoroTimer {
         if (workSession) {
             totalStudySeconds++;
             if (appData != null) appData.setTotalStudySeconds(totalStudySeconds);
+            if (studyTimeListener != null) {
+                studyTimeListener.onStudySecond();
+            }
         }
 
         if (secondsRemaining <= 0) {

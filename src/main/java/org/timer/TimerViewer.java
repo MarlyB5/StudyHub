@@ -5,7 +5,9 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ComboBox;
 import javafx.scene.layout.VBox;
+import org.modules.StudyModule;
 
 public class TimerViewer {
 
@@ -15,6 +17,24 @@ public class TimerViewer {
     ) {
 
         Label titleLabel = new Label("Pomodoro Timer");
+        // Module selector controls
+        Label moduleLabel = new Label("Study Module");
+        ComboBox<StudyModule> moduleSelector = new ComboBox<>();
+        moduleSelector.setPromptText("Select a module");
+        Label moduleStudyLabel = new Label("Module study time: No module selected");
+        if (appData != null && appData.getStudyModules() != null && !appData.getStudyModules().isEmpty()) {
+            // Use the same StudyModule objects held in AppData (no copies)
+            moduleSelector.getItems().addAll(appData.getStudyModules());
+        }
+        moduleSelector.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
+                System.out.println("Selected study module: " + newVal);
+                moduleStudyLabel.setText("Module study time: " + formatStudyTime(newVal.getStudiedSeconds()));
+            } else {
+                moduleStudyLabel.setText("Module study time: No module selected");
+            }
+        });
+
         Label sessionLabel = new Label("Work Session");
         Label timerLabel = new Label(formatTime(appData.getWorkDurationMinutes() * 60));
         Label sessionsLabel = new Label("Sessions completed: " + appData.getCompletedWorkSessions());
@@ -33,6 +53,9 @@ public class TimerViewer {
         Button applyButton = new Button("Apply Durations");
         Button changeButton = new Button("Change Durations");
 
+        final boolean[] lockModuleSelection = {false};
+        final boolean[] lastWorkFlag = {true};
+
         PomodoroTimer timer = new PomodoroTimer(
                 (secondsRemaining, workSession, completedSessions, totalStudySeconds) -> {
                     timerLabel.setText(formatTime(secondsRemaining));
@@ -43,6 +66,21 @@ public class TimerViewer {
                     }
                     sessionsLabel.setText("Sessions completed: " + completedSessions);
                     studyLabel.setText("Total Study Time: " + formatTime(totalStudySeconds));
+
+                    // If we transitioned into break, unlock selector
+                    if (!workSession && lockModuleSelection[0]) {
+                        lockModuleSelection[0] = false;
+                    }
+                    moduleSelector.setDisable(lockModuleSelection[0]);
+
+                    lastWorkFlag[0] = workSession;
+                },
+                () -> {
+                    StudyModule selectedModule = moduleSelector.getSelectionModel().getSelectedItem();
+                    if (selectedModule != null) {
+                        selectedModule.addStudySecond();
+                        moduleStudyLabel.setText("Module study time: " + formatStudyTime(selectedModule.getStudiedSeconds()));
+                    }
                 },
                 appData
         );
@@ -60,9 +98,27 @@ public class TimerViewer {
         applyButton.setManaged(false);
 
         // Actions
-        startButton.setOnAction(event -> timer.start());
-        pauseButton.setOnAction(event -> timer.pause());
-        resetButton.setOnAction(event -> timer.reset());
+        startButton.setOnAction(event -> {
+            timer.start();
+            // Lock module selection during active work session
+            lockModuleSelection[0] = true;
+            moduleSelector.setDisable(true);
+            StudyModule sel = moduleSelector.getSelectionModel().getSelectedItem();
+            if (sel != null) {
+                System.out.println("Tracking study time for: " + sel);
+            }
+        });
+        pauseButton.setOnAction(event -> {
+            timer.pause();
+            // Keep selector disabled while paused to avoid switching mid-session
+            moduleSelector.setDisable(lockModuleSelection[0]);
+        });
+        resetButton.setOnAction(event -> {
+            timer.reset();
+            // After reset, enable selection again
+            lockModuleSelection[0] = false;
+            moduleSelector.setDisable(false);
+        });
         backButton.setOnAction(event -> backAction.run());
 
         changeButton.setOnAction(event -> {
@@ -114,10 +170,13 @@ public class TimerViewer {
         VBox timerLayout = new VBox(
                 15,
                 titleLabel,
+                moduleLabel,
+                moduleSelector,
                 sessionLabel,
                 timerLabel,
                 sessionsLabel,
                 studyLabel,
+                moduleStudyLabel,
                 changeButton,
                 workLabel,
                 workMinutesField,

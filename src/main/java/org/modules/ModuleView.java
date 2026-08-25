@@ -4,10 +4,12 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.ToggleGroup;
+import javafx.concurrent.Task;
 
 import javafx.scene.layout.VBox;
 import org.persistence.AppData;
@@ -15,6 +17,8 @@ import org.persistence.AppData;
 public class ModuleView {
 
     private ModuleManager moduleManager;
+    // Last successful UCD search result to prevent stale adds
+    private UCDModuleData currentResult;
 
     public VBox createModuleView(
             AppData appData,
@@ -68,10 +72,14 @@ public class ModuleView {
         );
 
 
-        CheckBox includeContactCheckBox =
-                new CheckBox(
-                        "Include contact hours in target"
-                );
+        ToggleGroup targetGroup = new ToggleGroup();
+
+        RadioButton independentRadio = new RadioButton("Independent study only");
+        independentRadio.setToggleGroup(targetGroup);
+        independentRadio.setSelected(true);
+
+        RadioButton fullWorkloadRadio = new RadioButton("Full module workload");
+        fullWorkloadRadio.setToggleGroup(targetGroup);
 
         Button searchUcdButton =
                 new Button("Search UCD");
@@ -103,61 +111,67 @@ public class ModuleView {
 
         searchUcdButton.setOnAction(event -> {
 
-            String moduleCode =
-                    moduleCodeField
-                            .getText()
-                            .trim();
+            String moduleCode = moduleCodeField.getText().trim();
+            // Reset stale UI before starting
+            moduleNameField.clear();
+            autonomousHoursField.clear();
+            contactHoursField.clear();
+            independentRadio.setText("Independent study only");
+            fullWorkloadRadio.setText("Full module workload");
+            independentRadio.setSelected(true);
+            currentResult = null;
 
             if (moduleCode.isBlank()) {
-
-                statusLabel.setText(
-                        "Please enter a module code"
-                );
-
+                statusLabel.setText("Please enter a module code");
                 return;
             }
 
+            UCDModuleService service = new UCDModuleService();
 
-            UCDModuleService service =
-                    new UCDModuleService();
+            Task<UCDModuleData> task = new Task<>() {
+                @Override
+                protected UCDModuleData call() {
+                    return service.findModule(moduleCode);
+                }
+            };
 
-            UCDModuleData data =
-                    service.findModule(
-                            moduleCode
-                    );
+            searchUcdButton.setDisable(true);
+            String originalText = searchUcdButton.getText();
+            searchUcdButton.setText("Searching...");
+            statusLabel.setText("");
 
-            if (data == null) {
+            task.setOnSucceeded(e -> {
+                searchUcdButton.setDisable(false);
+                searchUcdButton.setText(originalText);
+                UCDModuleData data = task.getValue();
+                if (data == null) {
+                    statusLabel.setText("Could not find module");
+                    return;
+                }
+                currentResult = data;
+                moduleCodeField.setText(data.getModuleCode());
+                moduleNameField.setText(data.getModuleName());
+                autonomousHoursField.setText(String.valueOf(data.getAutonomousHours()));
+                contactHoursField.setText(String.valueOf(data.getNonAutonomousHours()));
+                // Make UCD-populated fields read-only
+                moduleNameField.setEditable(false);
+                autonomousHoursField.setEditable(false);
+                contactHoursField.setEditable(false);
+                // Update radio labels with parsed hours
+                independentRadio.setText("Independent study only — " + (int)data.getAutonomousHours() + " hours");
+                fullWorkloadRadio.setText("Full module workload — " + (int)data.getTotalHours() + " hours");
+                independentRadio.setSelected(true);
+                statusLabel.setText("Module found");
+            });
 
-                statusLabel.setText(
-                        "Could not find module"
-                );
+            task.setOnFailed(e -> {
+                searchUcdButton.setDisable(false);
+                searchUcdButton.setText(originalText);
+                statusLabel.setText("Could not retrieve module information from UCD");
+                currentResult = null;
+            });
 
-                return;
-            }
-
-            moduleCodeField.setText(
-                    data.getModuleCode()
-            );
-
-            moduleNameField.setText(
-                    data.getModuleName()
-            );
-
-            autonomousHoursField.setText(
-                    String.valueOf(
-                            data.getAutonomousHours()
-                    )
-            );
-
-            contactHoursField.setText(
-                    String.valueOf(
-                            data.getNonAutonomousHours()
-                    )
-            );
-
-            statusLabel.setText(
-                    "Module found"
-            );
+            new Thread(task).start();
         });
 
         addButton.setOnAction(event -> {
@@ -192,11 +206,8 @@ public class ModuleView {
                         );
 
 
-                // Check checkbox
-
-                boolean includeContact =
-                        includeContactCheckBox
-                                .isSelected();
+                // Map radio selection to includeContactHours
+                boolean includeContact = fullWorkloadRadio.isSelected();
 
                 if (
                         code.isBlank()
@@ -236,6 +247,12 @@ public class ModuleView {
                     return;
                 }
 
+                // Prevent adding stale/invalid UCD data: require a matching successful lookup
+                if (currentResult == null || !currentResult.getModuleCode().equalsIgnoreCase(code)) {
+                    statusLabel.setText("Please Search UCD and ensure the code matches before adding");
+                    return;
+                }
+
                 StudyModule module =
                         new StudyModule(
                                 name,
@@ -256,16 +273,18 @@ public class ModuleView {
                         "Module added"
                 );
 
+                // Reset fields for next add
                 moduleCodeField.clear();
-
                 moduleNameField.clear();
-
                 autonomousHoursField.clear();
-
                 contactHoursField.clear();
-
-                includeContactCheckBox
-                        .setSelected(false);
+                moduleNameField.setEditable(true);
+                autonomousHoursField.setEditable(true);
+                contactHoursField.setEditable(true);
+                independentRadio.setText("Independent study only");
+                fullWorkloadRadio.setText("Full module workload");
+                independentRadio.setSelected(true);
+                currentResult = null;
 
 
             } catch (
@@ -337,7 +356,8 @@ public class ModuleView {
                         contactHoursLabel,
                         contactHoursField,
 
-                        includeContactCheckBox,
+                        independentRadio,
+                        fullWorkloadRadio,
 
                         addButton,
                         removeButton,
