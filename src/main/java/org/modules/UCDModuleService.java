@@ -12,6 +12,10 @@ public class UCDModuleService {
             String moduleCode
     ) {
 
+        double autonomousHours = 0;
+        double contactHours = 0;
+        double totalHours = 0;
+
         // Make sure the code is clean
         String cleanCode =
                 moduleCode
@@ -55,17 +59,108 @@ public class UCDModuleService {
                     moduleHeading.text();
 
             String moduleName =
-                    headingText
-                            .replace(
-                                    "(" + cleanCode + ")",
-                                    ""
-                            )
+                    headingText.replace("(" + cleanCode + ")", "")
                             .trim();
 
             System.out.println(
                     "Module name: " + moduleName
             );
 
+            for (Element row : document.select("tr")) {
+
+                String rowText = row.text();
+
+                if (rowText.startsWith("Autonomous Student Learning")) {
+
+                    String hoursText =
+                            rowText.replace(
+                                    "Autonomous Student Learning",
+                                    ""
+                            ).trim();
+
+                    autonomousHours =
+                            Double.parseDouble(hoursText);
+                }
+
+                else if (rowText.startsWith("Lectures")) {
+
+                    String hoursText =
+                            rowText.replace(
+                                    "Lectures",
+                                    ""
+                            ).trim();
+
+                    contactHours +=
+                            Double.parseDouble(hoursText);
+                }
+
+                else if (rowText.startsWith("Tutorial")) {
+
+                    String hoursText =
+                            rowText.replace(
+                                    "Tutorial",
+                                    ""
+                            ).trim();
+
+                    contactHours +=
+                            Double.parseDouble(hoursText);
+                }
+
+                else if (rowText.startsWith("Practical")) {
+
+                    String hoursText =
+                            rowText.replace(
+                                    "Practical",
+                                    ""
+                            ).trim();
+
+                    contactHours +=
+                            Double.parseDouble(hoursText);
+                }
+
+                else if (rowText.startsWith("Online Learning")) {
+
+                    String hoursText =
+                            rowText.replace(
+                                    "Online Learning",
+                                    ""
+                            ).trim();
+
+                    contactHours +=
+                            Double.parseDouble(hoursText);
+                }
+
+                else if (rowText.startsWith("Total")) {
+
+                    String hoursText =
+                            rowText.replace(
+                                    "Total",
+                                    ""
+                            ).trim();
+
+                    totalHours =
+                            Double.parseDouble(hoursText);
+                }
+            }
+            System.out.println(
+                    "Autonomous hours: " + autonomousHours
+            );
+
+            System.out.println(
+                    "Contact hours: " + contactHours
+            );
+
+            System.out.println(
+                    "Total hours: " + totalHours
+            );
+
+            return new UCDModuleData(
+                    cleanCode,
+                    moduleName,
+                    autonomousHours,
+                    contactHours,
+                    totalHours
+            );
 
 
         } catch (IOException exception) {
@@ -76,7 +171,6 @@ public class UCDModuleService {
 
             exception.printStackTrace();
         }
-
 
         return null;
     }

@@ -121,9 +121,42 @@ public class ModuleView {
             UCDModuleService service =
                     new UCDModuleService();
 
+            UCDModuleData data =
+                    service.findModule(
+                            moduleCode
+                    );
 
-            service.findModule(
-                    moduleCode
+            if (data == null) {
+
+                statusLabel.setText(
+                        "Could not find module"
+                );
+
+                return;
+            }
+
+            moduleCodeField.setText(
+                    data.getModuleCode()
+            );
+
+            moduleNameField.setText(
+                    data.getModuleName()
+            );
+
+            autonomousHoursField.setText(
+                    String.valueOf(
+                            data.getAutonomousHours()
+                    )
+            );
+
+            contactHoursField.setText(
+                    String.valueOf(
+                            data.getNonAutonomousHours()
+                    )
+            );
+
+            statusLabel.setText(
+                    "Module found"
             );
         });
 
