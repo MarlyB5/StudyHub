@@ -2,6 +2,7 @@ package org.modules;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import java.io.IOException;
 
@@ -38,10 +39,33 @@ public class UCDModuleService {
                     "Successfully connected to UCD"
             );
 
+            Element moduleHeading =
+                    document.select("h4").first();
+
+            if (moduleHeading == null) {
+
+                System.out.println(
+                        "Could not find module heading"
+                );
+
+                return null;
+            }
+
+            String headingText =
+                    moduleHeading.text();
+
+            String moduleName =
+                    headingText
+                            .replace(
+                                    "(" + cleanCode + ")",
+                                    ""
+                            )
+                            .trim();
 
             System.out.println(
-                    document.title()
+                    "Module name: " + moduleName
             );
+
 
 
         } catch (IOException exception) {
