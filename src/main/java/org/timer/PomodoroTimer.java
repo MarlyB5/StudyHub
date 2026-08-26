@@ -4,6 +4,11 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.util.Duration;
 import org.persistence.AppData;
+import org.statistics.StudyDay;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 // timer logic
 public class PomodoroTimer {
@@ -91,7 +96,33 @@ public class PomodoroTimer {
 
         if (workSession) {
             totalStudySeconds++;
-            if (appData != null) appData.setTotalStudySeconds(totalStudySeconds);
+            if (appData != null) {
+                appData.setTotalStudySeconds(totalStudySeconds);
+                // Record into daily history for today
+                try {
+                    List<StudyDay> history = appData.getStudyHistory();
+                    if (history == null) {
+                        history = new ArrayList<>();
+                        appData.setStudyHistory(history);
+                    }
+                    String today = LocalDate.now().toString();
+                    StudyDay todayEntry = null;
+                    for (StudyDay d : history) {
+                        if (d != null && today.equals(d.getDate())) {
+                            todayEntry = d;
+                            break;
+                        }
+                    }
+                    if (todayEntry == null) {
+                        todayEntry = new StudyDay(today, 0);
+                        history.add(todayEntry);
+                        System.out.println("[DEBUG] Created new StudyDay for " + today);
+                    }
+                    todayEntry.addSecond();
+                } catch (Exception ignored) {
+                    // Defensive: statistics should never break the timer
+                }
+            }
             if (studyTimeListener != null) {
                 studyTimeListener.onStudySecond();
             }

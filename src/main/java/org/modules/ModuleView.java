@@ -14,16 +14,21 @@ import javafx.concurrent.Task;
 import javafx.scene.layout.VBox;
 import org.persistence.AppData;
 
+
 public class ModuleView {
 
     private ModuleManager moduleManager;
     // Last successful UCD search result to prevent stale adds
     private UCDModuleData currentResult;
 
+
+
+
     public VBox createModuleView(
             AppData appData,
             Runnable backAction
     ) {
+
 
         Label titleLabel =
                 new Label("Study Modules");
@@ -319,7 +324,6 @@ public class ModuleView {
                     selected
             );
 
-
             statusLabel.setText(
                     "Module removed"
             );
@@ -381,4 +385,6 @@ public class ModuleView {
 
         return layout;
     }
+
 }
+

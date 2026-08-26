@@ -11,6 +11,9 @@ public class MenuView {
             Runnable openPlaylistAction,
             Runnable openTimerAction,
             Runnable openModulesAction,
+            Runnable openDashboardAction,
+            Runnable openTasksAction,
+            Runnable openStatisticsAction,
             Runnable exitAction
     ) {
 
@@ -24,6 +27,15 @@ public class MenuView {
 
         Button openModulesButton =
                 new Button("Study Modules");
+
+        Button dashboardButton =
+                new Button("Dashboard");
+
+        Button tasksButton =
+                new Button("Tasks");
+
+        Button statisticsButton =
+                new Button("Statistics");
 
         Button exitButton =
                 new Button("Exit");
@@ -39,6 +51,18 @@ public class MenuView {
 
         openModulesButton.setOnAction(
                 e -> openModulesAction.run()
+        );
+
+        dashboardButton.setOnAction(
+                e -> openDashboardAction.run()
+        );
+
+        tasksButton.setOnAction(
+                e -> openTasksAction.run()
+        );
+
+        statisticsButton.setOnAction(
+                e -> openStatisticsAction.run()
         );
 
         exitButton.setOnAction(
@@ -58,6 +82,9 @@ public class MenuView {
                 openPlaylistButton,
                 openTimerButton,
                 openModulesButton,
+                dashboardButton,
+                tasksButton,
+                statisticsButton,
                 exitButton
         );
 

@@ -2,6 +2,8 @@ package org.app;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.Parent;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
@@ -10,6 +12,8 @@ import org.playlist.PlaylistView;
 import org.timer.TimerViewer;
 import org.persistence.AppData;
 import org.persistence.DataManager;
+import org.dashboard.DashboardView;
+import org.todo.TodoView;
 
 public class Main extends Application {
 
@@ -46,19 +50,36 @@ public class Main extends Application {
         ModuleView moduleView =
                 new ModuleView();
 
+        DashboardView dashboardView =
+                new DashboardView();
 
-        Pane[] menuRoot =
-                new Pane[1];
+        TodoView todoView =
+                new TodoView();
 
-        Pane[] playlistRoot =
-                new Pane[1];
+        org.statistics.StatisticsView statisticsView =
+                new org.statistics.StatisticsView();
 
-        Pane[] timerRoot =
-                new Pane[1];
 
-        Pane[] moduleRoot =
-                new Pane[1];
+        Parent[] menuRoot =
+                new Parent[1];
 
+        Parent[] playlistRoot =
+                new Parent[1];
+
+        Parent[] timerRoot =
+                new Parent[1];
+
+        Parent[] moduleRoot =
+                new Parent[1];
+
+        Parent[] dashboardRoot =
+                new Parent[1];
+
+        Parent[] tasksRoot =
+                new Parent[1];
+
+        Parent[] statisticsRoot =
+                new Parent[1];
 
         menuRoot[0] =
                 menuView.createMenu(
@@ -75,36 +96,108 @@ public class Main extends Application {
                                 moduleRoot[0]
                         ),
 
+                        () -> {
+                            // Refresh dashboard before showing
+                            dashboardView.refreshProgress();
+                            scene.setRoot(
+                                    dashboardRoot[0]
+                            );
+                        },
+
+                        () -> {
+                            // Refresh tasks before showing (updates module list options)
+                            todoView.refresh(appData);
+                            scene.setRoot(
+                                    tasksRoot[0]
+                            );
+                        },
+
+                        () -> {
+                            // Refresh statistics before showing
+                            statisticsView.refreshStatistics();
+                            scene.setRoot(
+                                    statisticsRoot[0]
+                            );
+                        },
+
                         () -> stage.close()
                 );
 
 
-        playlistRoot[0] =
-                playlistView.createPlaylist(
-                        appData,
-                        () -> scene.setRoot(
-                                menuRoot[0]
-                        )
-                );
+        {
+            var content = playlistView.createPlaylist(
+                    appData,
+                    () -> scene.setRoot(
+                            menuRoot[0]
+                    )
+            );
+            ScrollPane sp = new ScrollPane(content);
+            sp.setFitToWidth(true);
+            sp.setFitToHeight(true);
+            playlistRoot[0] = sp;
+        }
 
 
-        timerRoot[0] =
-                timerView.createTimer(
-                        appData,
-                        () -> scene.setRoot(
-                                menuRoot[0]
-                        )
-                );
+        {
+            var content = timerView.createTimer(
+                    appData,
+                    () -> scene.setRoot(
+                            menuRoot[0]
+                    )
+            );
+            ScrollPane sp = new ScrollPane(content);
+            sp.setFitToWidth(true);
+            timerRoot[0] = sp;
+        }
 
 
-        moduleRoot[0] =
-                moduleView.createModuleView(
-                        appData,
-                        () -> scene.setRoot(
-                                menuRoot[0]
-                        )
-                );
+        {
+            var content = moduleView.createModuleView(
+                    appData,
+                    () -> scene.setRoot(
+                            menuRoot[0]
+                    )
+            );
+            ScrollPane sp = new ScrollPane(content);
+            sp.setFitToWidth(true);
+            moduleRoot[0] = sp;
+        }
 
+        {
+            var content = dashboardView.createDashboard(
+                    appData,
+                    () -> scene.setRoot(
+                            menuRoot[0]
+                    )
+            );
+            ScrollPane sp = new ScrollPane(content);
+            sp.setFitToWidth(true);
+            dashboardRoot[0] = sp;
+        }
+
+        {
+            var content = todoView.createTodoView(
+                    appData,
+                    () -> scene.setRoot(
+                            menuRoot[0]
+                    )
+            );
+            ScrollPane sp = new ScrollPane(content);
+            sp.setFitToWidth(true);
+            tasksRoot[0] = sp;
+        }
+
+        {
+            var content = statisticsView.createStatistics(
+                    appData,
+                    () -> scene.setRoot(
+                            menuRoot[0]
+                    )
+            );
+            ScrollPane sp = new ScrollPane(content);
+            sp.setFitToWidth(true);
+            statisticsRoot[0] = sp;
+        }
 
         scene.setRoot(
                 menuRoot[0]
