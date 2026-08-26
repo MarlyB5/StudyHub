@@ -2,6 +2,8 @@ package org.persistence;
 
 import org.playlist.Song;
 import org.modules.StudyModule;
+import org.todo.Task;
+import org.statistics.StudyDay;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +21,12 @@ public class AppData {
     private boolean playlistInitialized = false;
 
     private List<StudyModule> studyModules = new ArrayList<>();
+
+    // New: tasks for To-Do feature
+    private List<Task> tasks = new ArrayList<>();
+
+    // New: daily study history for statistics
+    private List<StudyDay> studyHistory = new ArrayList<>();
 
 
     public int getWorkDurationMinutes() {
@@ -78,5 +86,21 @@ public class AppData {
 
     public void setStudyModules(List<StudyModule> studyModules) {
         this.studyModules = studyModules;
+    }
+
+    public List<Task> getTasks() {
+        return tasks;
+    }
+
+    public void setTasks(List<Task> tasks) {
+        this.tasks = tasks;
+    }
+
+    public List<StudyDay> getStudyHistory() {
+        return studyHistory;
+    }
+
+    public void setStudyHistory(List<StudyDay> studyHistory) {
+        this.studyHistory = studyHistory;
     }
 }
