@@ -37,6 +37,14 @@ public class Main extends Application {
                 500
         );
 
+        scene.getStylesheets().add(
+                getClass()
+                        .getResource(
+                                "/styles/app.css"
+                        )
+                        .toExternalForm()
+        );
+
 
         MenuView menuView =
                 new MenuView();
@@ -196,6 +204,8 @@ public class Main extends Application {
             );
             ScrollPane sp = new ScrollPane(content);
             sp.setFitToWidth(true);
+            sp.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+            sp.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
             statisticsRoot[0] = sp;
         }
 

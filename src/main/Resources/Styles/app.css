@@ -1,0 +1,11 @@
+
+.root {
+    -fx-font-family: "Verdana";
+    -fx-font-size: 14px;
+}
+
+
+.title-label {
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+}
