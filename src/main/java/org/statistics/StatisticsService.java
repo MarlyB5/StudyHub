@@ -57,16 +57,15 @@ public class StatisticsService {
         for (int i = 6; i >= 0; i--) {
             LocalDate day = today.minusDays(i);
             String key = day.toString();
-            StudyDay match = null;
+            int totalForDay = 0;
             if (appData != null && appData.getStudyHistory() != null) {
                 for (StudyDay d : appData.getStudyHistory()) {
-                    if (d != null && key.equals(d.getDate())) { match = d; break; }
+                    if (d != null && key.equals(d.getDate())) {
+                        totalForDay += Math.max(0, d.getStudiedSeconds());
+                    }
                 }
             }
-            if (match == null) {
-                match = new StudyDay(key, 0);
-            }
-            out.add(match);
+            out.add(new StudyDay(key, totalForDay));
         }
         return out;
     }

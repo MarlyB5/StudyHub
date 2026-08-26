@@ -124,17 +124,20 @@ public class StatisticsView {
         for (StudyModule m : appData.getStudyModules()) {
             if (m == null) continue;
             String code = m.getModuleCode();
-            double hours = m.getStudiedHours();
-            byModuleBox.getChildren().add(new Label((code == null ? "?" : code) + " — " + String.format("%.1f h", hours)));
+            byModuleBox.getChildren().add(new Label((code == null ? "?" : code) + " — " + formatStudyTime(m.getStudiedSeconds())));
         }
     }
 
     private void buildMostStudied() {
         StudyModule top = service.getMostStudiedModule();
         if (top == null || top.getStudiedSeconds() <= 0) {
-            mostStudiedLabel.setText("No study recorded yet.");
+            mostStudiedLabel.setText("No module study data yet.");
         } else {
-            mostStudiedLabel.setText(top.getModuleCode() + " — " + formatStudyTime(top.getStudiedSeconds()));
+            String code = top.getModuleCode() == null ? "?" : top.getModuleCode();
+            String name = top.getModuleName();
+            String line1 = name == null || name.isBlank() ? code : code + " - " + name;
+            String line2 = formatStudyTime(top.getStudiedSeconds()) + " studied";
+            mostStudiedLabel.setText(line1 + "\n" + line2);
         }
     }
 
